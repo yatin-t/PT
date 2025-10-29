@@ -1,0 +1,10 @@
+.auth-bg {
+  /* large hero background used only on auth pages */
+  background: url('http://127.0.0.1:8000/static/img/img.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* ensure the auth container covers full height when applied */
+.auth-bg .container {
+  min-height: 100vh;
+}

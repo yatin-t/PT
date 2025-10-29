@@ -1,0 +1,15 @@
+asgiref==3.9.1
+Django==5.2.4
+sqlparse==0.5.3
+tzdata==2025.2
+
+# Added for API support and CORS to enable React frontend
+djangorestframework==3.16.1
+django-cors-headers==4.0.0
+gunicorn==20.1.0
+whitenoise==6.5.0
+dj-database-url==1.0.0
+# psycopg2-binary is required for production Postgres. Re-enable for deploys. On Windows, building from source may fail;
+# follow the notes in README_DEPLOY.md if you hit build errors locally.
+psycopg2-binary==2.9.7
+django-cloudinary-storage==0.3.0

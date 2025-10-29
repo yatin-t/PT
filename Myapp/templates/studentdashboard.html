@@ -1,0 +1,1013 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Dashboard | cloudED</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="{% static 'css/studentdashboard.css' %}"/>
+  <style>
+    /* Additional styles for dynamic teacher content */
+    .teacher-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #7f65f3;
+    }
+    
+    .teacher-info i {
+      color: #7f65f3;
+    }
+    
+    .teacher-details {
+      flex: 1;
+    }
+    
+    .teacher-name {
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+      font-size: 16px;
+    }
+    
+    .teacher-subject {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .no-content {
+      color: #999;
+      font-style: italic;
+      padding: 15px;
+      text-align: center;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    
+    .no-teachers {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+    
+    .no-teachers i {
+      font-size: 64px;
+      color: #ddd;
+      margin-bottom: 20px;
+    }
+    
+    .no-teachers h3 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    
+    .no-teachers p {
+      margin-bottom: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .card {
+      margin-bottom: 20px;
+      border: 1px solid #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .card.expanded {
+      border-color: #7f65f3;
+      box-shadow: 0 4px 20px rgba(127, 101, 243, 0.1);
+    }
+    
+    .card-content {
+      padding: 20px;
+      cursor: pointer;
+      background: white;
+      transition: background 0.3s ease;
+    }
+    
+    .card-content:hover {
+      background: #f8f7ff;
+    }
+    
+    .card-content h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #333;
+      font-size: 20px;
+    }
+    
+    .arrow-icon {
+      transition: transform 0.3s ease;
+      color: #7f65f3;
+    }
+    
+    .card.expanded .arrow-icon {
+      transform: rotate(90deg);
+    }
+    
+    .unit-list {
+      display: none;
+      padding: 0 20px 20px;
+      background: #fafafa;
+    }
+    
+    .card.expanded .unit-list {
+      display: block;
+    }
+    
+    .unit {
+      padding: 12px 15px;
+      margin: 8px 0;
+      background: white;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .unit:hover {
+      background: #7f65f3;
+      color: white;
+      transform: translateX(5px);
+    }
+    
+    .pdf-viewer {
+      display: none;
+      padding: 15px;
+      margin: 10px 0;
+      background: #e8f4fd;
+      border: 1px solid #bee5eb;
+      border-radius: 8px;
+      color: #0c5460;
+      font-weight: 500;
+    }
+    
+    .pdf-viewer i {
+      margin-right: 8px;
+      color: #dc3545;
+    }
+    
+    .student-info {
+      background: #e8f5e8;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #28a745;
+    }
+    
+    .student-info h3 {
+      margin: 0 0 5px 0;
+      color: #155724;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .student-info p {
+      margin: 0;
+      color: #155724;
+      font-size: 14px;
+    }
+    
+    .dropdown p {
+      margin: 5px 0;
+      padding: 5px 10px;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .dropdown p:first-child {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <i class="fas fa-graduation-cap logo-icon" style="font-size: 30px;"></i>
+      <span class="logo-text" style="font-size: 30px; color: rgb(133, 133, 133);">cloud<span style="color: #7f65f3;" class="highlight">ED</span></span>
+    </div>
+    <div class="header-right">
+      <div class="user-icon" onclick="toggleDropdown()">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="dropdown" id="dropdownMenu">
+        <p><i class="fas fa-user-graduate"></i> {{ user_name }}</p>
+        <p style="font-size: 12px; color: #666;">{{ user_email }}</p>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay"></div>
+  
+  <div class="container">
+    <div class="sidebar">
+      <h2>Learn Course</h2>
+      <p>Welcome to cloudED — a simple and interactive learning space for students and teachers.</p>
+      
+      <!-- Student Info -->
+      <div class="student-info">
+        <h3>
+          <i class="fas fa-user-graduate"></i>
+          Student Profile
+        </h3>
+        <p><strong>Name:</strong> {{ user_name }}</p>
+        <p><strong>Email:</strong> {{ user_email }}</p>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <h1>Available Courses <i class="fas fa-book-open"></i></h1>
+
+      <!-- Filter Section -->
+      <div class="filter-section" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e9ecef; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h3 style="margin: 0 0 15px 0; color: #333; display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-filter" style="color: #7f65f3;"></i>
+          Filter Courses & Files
+        </h3>
+
+        <div class="filter-controls" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+          <!-- Search by Teacher Name -->
+          <div class="filter-group">
+            <label for="teacherSearch" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">
+              <i class="fas fa-user" style="margin-right: 5px; color: #7f65f3;"></i>Search Teacher
+            </label>
+            <input type="text" id="teacherSearch" placeholder="Type teacher name..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+          </div>
+
+          <!-- Filter by Subject -->
+          <div class="filter-group">
+            <label for="subjectFilter" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">
+              <i class="fas fa-graduation-cap" style="margin-right: 5px; color: #7f65f3;"></i>Subject
+            </label>
+            <select id="subjectFilter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
+              <option value="">All Subjects</option>
+              {% for teacher in teachers %}
+                {% if teacher.subject %}
+                  <option value="{{ teacher.subject }}">{{ teacher.subject }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Filter by Tag -->
+          <div class="filter-group">
+            <label for="tagFilter" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">
+              <i class="fas fa-tags" style="margin-right: 5px; color: #7f65f3;"></i>Tag
+            </label>
+            <select id="tagFilter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
+              <option value="">All Tags</option>
+              <option value="assignment">Assignment</option>
+              <option value="personal_note">Personal Note</option>
+              <option value="study_material">Study Material</option>
+              <option value="question_bank">Question Bank</option>
+            </select>
+          </div>
+
+          <!-- Filter by Unit -->
+          <div class="filter-group">
+            <label for="unitFilter" style="display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px;">
+              <i class="fas fa-folder" style="margin-right: 5px; color: #7f65f3;"></i>Unit
+            </label>
+            <select id="unitFilter" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white;">
+              <option value="">All Units</option>
+              {% for teacher in teachers %}
+                {% for unit in teacher.course_units.all %}
+                  <option value="{{ unit.name }}">{{ unit.name }}</option>
+                {% endfor %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Clear Filters Button -->
+          <div class="filter-group">
+            <button id="clearFilters" style="width: 100%; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.3s ease;">
+              <i class="fas fa-times" style="margin-right: 5px;"></i>Clear Filters
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Results Summary -->
+        <div id="filterSummary" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; display: none;">
+          <span id="filterSummaryText" style="font-size: 14px; color: #666;"></span>
+        </div>
+      </div>
+
+      {% if teachers %}
+<div class="cards">
+  {% for teacher in teachers %}
+    <div class="card" id="teacher-{{ teacher.id }}">
+      <div class="card-content" onclick="expandCourse(this, {{ teacher.id }})">
+        <div class="teacher-info">
+          <i class="fas fa-chalkboard-teacher"></i>
+          <div class="teacher-details">
+            <p class="teacher-name">{{ teacher.full_name }}</p>
+            <p class="teacher-subject">{{ teacher.subject|default:"General Course" }}</p>
+          </div>
+          <i class="fas fa-chevron-right arrow-icon"></i>
+        </div>
+      </div>
+      
+      <div class="unit-list" id="course-{{ teacher.id }}">
+        {% if teacher.course_units.all %}
+          {% for unit in teacher.course_units.all %}
+            <div class="unit" onclick="event.stopPropagation(); toggleUnitFiles('unit-{{ unit.id }}')">
+              <i class="fas fa-folder" style="margin-right: 8px;"></i>
+              {{ unit.name }}
+              <span style="float: right; font-size: 12px; color: #666;">
+                {% with published_files=unit.files.all %}
+                  {% for file in published_files %}
+                    {% if file.is_published %}
+                      {% if forloop.first %}1{% else %}{{ forloop.counter }}{% endif %}
+                    {% endif %}
+                  {% endfor %}
+                  {% for file in published_files %}
+                    {% if file.is_published %}
+                      {% if forloop.first %} published file{% if forloop.counter > 1 %}s{% endif %}{% endif %}
+                    {% endif %}
+                  {% empty %}
+                    0 files
+                  {% endfor %}
+                {% endwith %}
+              </span>
+            </div>
+            
+            <div class="unit-files" id="unit-{{ unit.id }}" style="display: none; padding-left: 20px;">
+              {% for file in unit.files.all %}
+                {% if file.is_published %}
+                  <div class="file-item" style="display: flex; align-items: center; justify-content: space-between; padding: 12px; margin: 8px 0; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef; transition: all 0.3s ease;">
+                    <div class="file-info" style="display: flex; align-items: center; gap: 12px;">
+                      <i class="fas {{ file.get_file_icon }} file-icon" style="color: {{ file.get_file_color }}; font-size: 24px;"></i>
+                      <div class="file-details">
+                        <h4 style="margin: 0 0 5px 0; font-size: 16px; color: #333; font-weight: 600;">{{ file.original_name }}</h4>
+                        <p style="margin: 0; font-size: 13px; color: #666;">
+                          Size: {{ file.get_file_size_display }} | 
+                          Uploaded: {{ file.uploaded_at|date:"M d, Y" }} | 
+                          By: {{ teacher.full_name }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="file-actions" style="display: flex; gap: 8px;">
+                      {% if file.can_preview %}
+                        <button onclick="previewFileStudent({{ file.id }}, '{{ file.original_name }}')" 
+                                style="background: #17a2b8; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: background 0.3s ease;">
+                          <i class="fas fa-eye"></i> Preview
+                        </button>
+                      {% endif %}
+                      <button onclick="downloadFileStudent({{ file.id }}, '{{ file.original_name }}')" 
+                              style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: background 0.3s ease;">
+                        <i class="fas fa-download"></i> Download
+                      </button>
+                    </div>
+                  </div>
+                {% endif %}
+              {% empty %}
+                <div class="no-content" style="margin: 10px 0; padding: 15px; text-align: center; background: #f8f9fa; border-radius: 8px; color: #999; font-style: italic;">
+                  <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+                  No files uploaded to this unit yet.
+                </div>
+              {% endfor %}
+              
+              {% if not unit.files.all %}
+                <div class="no-content" style="margin: 10px 0; padding: 15px; text-align: center; background: #f8f9fa; border-radius: 8px; color: #999; font-style: italic;">
+                  <i class="fas fa-folder-open" style="margin-right: 8px;"></i>
+                  This unit is empty. No files uploaded yet.
+                </div>
+              {% else %}
+                {% with has_published=False %}
+                  {% for file in unit.files.all %}
+                    {% if file.is_published %}
+                      {% with has_published=True %}{% endwith %}
+                    {% endif %}
+                  {% endfor %}
+                  {% if not has_published %}
+                    <div class="no-content" style="margin: 10px 0; padding: 15px; text-align: center; background: #f8f9fa; border-radius: 8px; color: #999; font-style: italic;">
+                      <i class="fas fa-clock" style="margin-right: 8px;"></i>
+                      Files are uploaded but not yet published by the teacher.
+                    </div>
+                  {% endif %}
+                {% endwith %}
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-content" style="padding: 20px; text-align: center; background: #f8f9fa; border-radius: 8px; color: #999; font-style: italic;">
+            <i class="fas fa-folder-open" style="margin-right: 8px; font-size: 24px; display: block; margin-bottom: 10px;"></i>
+            No course units created yet by {{ teacher.full_name }}.
+            <br><small style="color: #666;">Check back later for updates!</small>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+<!-- No teachers available -->
+<div class="no-teachers">
+  <i class="fas fa-user-slash"></i>
+  <h3>No Teachers Available</h3>
+  <p>There are currently no teachers registered in the system.<br>Please check back later or contact your administrator.</p>
+</div>
+{% endif %}
+    </div>
+  </div>
+
+  <script>
+    // Store currently expanded teacher
+let currentlyExpanded = null;
+
+function toggleDropdown() {
+  const menu = document.getElementById("dropdownMenu");
+  menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+}
+
+document.addEventListener("click", function(event) {
+  const dropdown = document.getElementById("dropdownMenu");
+  const icon = document.querySelector(".user-icon");
+  if (!dropdown.contains(event.target) && !icon.contains(event.target)) {
+    dropdown.style.display = "none";
+  }
+});
+
+function togglePDF(pdfId) {
+  const pdfViewer = document.getElementById(pdfId);
+  const allPDFs = document.querySelectorAll('.pdf-viewer');
+  
+  // Hide all other PDFs
+  allPDFs.forEach(pdf => {
+    if (pdf !== pdfViewer) {
+      pdf.style.display = 'none';
+    }
+  });
+  
+  // Toggle current PDF
+  if (pdfViewer) {
+    pdfViewer.style.display = pdfViewer.style.display === 'block' ? 'none' : 'block';
+  }
+}
+
+function expandCourse(element, teacherId) {
+  const card = element.closest('.card');
+  const allCards = document.querySelectorAll('.card');
+  
+  // If clicking on the same card that's already expanded, collapse it
+  if (currentlyExpanded === teacherId) {
+    card.classList.remove("expanded");
+    currentlyExpanded = null;
+    
+    // Hide all PDFs when collapsing
+    const allPDFs = document.querySelectorAll('.pdf-viewer');
+    allPDFs.forEach(pdf => pdf.style.display = 'none');
+    
+    return;
+  }
+  
+  // Collapse all other cards
+  allCards.forEach(c => {
+    c.classList.remove("expanded");
+  });
+  
+  // Hide all PDFs from other teachers
+  const allPDFs = document.querySelectorAll('.pdf-viewer');
+  allPDFs.forEach(pdf => pdf.style.display = 'none');
+  
+  // Expand current card
+  card.classList.add("expanded");
+  currentlyExpanded = teacherId;
+  
+  // Show success message
+  const teacherName = card.querySelector('.teacher-name').textContent;
+  const teacherSubject = card.querySelector('.teacher-subject').textContent;
+  showMessage(`Viewing courses by ${teacherName} - ${teacherSubject}`, 'success');
+}
+
+function downloadFileStudent(fileId, fileName) {
+    // Create a temporary link element for download
+    const link = document.createElement('a');
+    link.href = `/api/download-file/${fileId}/`;
+    link.download = fileName;
+    link.target = '_blank';
+    
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showMessage(`Downloading "${fileName}"...`, 'success');
+}
+
+function downloadFile(fileId) {
+    const link = document.createElement('a');
+    link.href = `/api/download-file/${fileId}/`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showMessage('Download started!', 'success');
+}
+
+function showMessage(message, type = 'info') {
+  // Remove existing messages
+  const existingMessages = document.querySelectorAll('.toast-message');
+  existingMessages.forEach(msg => msg.remove());
+  
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'toast-message';
+  messageDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  `;
+  
+  // Set background color based on type
+  const colors = {
+    success: '#28a745',
+    info: '#17a2b8',
+    warning: '#ffc107',
+    error: '#dc3545'
+  };
+  
+  messageDiv.style.background = colors[type] || colors.info;
+  
+  const icons = {
+    success: 'fa-check-circle',
+    info: 'fa-info-circle',
+    warning: 'fa-exclamation-triangle',
+    error: 'fa-times-circle'
+  };
+  
+  messageDiv.innerHTML = `
+    <i class="fas ${icons[type] || icons.info}" style="margin-right: 8px;"></i>
+    ${message}
+  `;
+  
+  document.body.appendChild(messageDiv);
+  
+  // Auto remove after 4 seconds
+  setTimeout(() => {
+    messageDiv.style.opacity = '0';
+    messageDiv.style.transform = 'translateX(100%)';
+    setTimeout(() => messageDiv.remove(), 300);
+  }, 4000);
+}
+
+// Add CSS animation for toast messages
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .toast-message {
+    transition: all 0.3s ease;
+  }
+`;
+document.head.appendChild(style);
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+  const teacherCount = {{ teachers|length }};
+  if (teacherCount > 0) {
+    showMessage(`Found ${teacherCount} teacher${teacherCount !== 1 ? 's' : ''} with available courses`, 'info');
+  }
+  
+  // Show recent notifications
+  const notificationCount = {{ recent_notifications|length }};
+  if (notificationCount > 0) {
+    setTimeout(() => {
+      showMessage(`You have ${notificationCount} recent notification${notificationCount !== 1 ? 's' : ''}`, 'info');
+    }, 2000);
+  }
+});
+
+function toggleUnitFiles(unitId) {
+    const unitFiles = document.getElementById(unitId);
+    const allUnitFiles = document.querySelectorAll('.unit-files');
+    
+    // Hide all other unit files
+    allUnitFiles.forEach(unit => {
+        if (unit !== unitFiles) {
+            unit.style.display = 'none';
+        }
+    });
+    
+    // Toggle current unit files
+    if (unitFiles) {
+        const isVisible = unitFiles.style.display === 'block';
+        unitFiles.style.display = isVisible ? 'none' : 'block';
+        
+        if (!isVisible) {
+            // Show message when opening unit
+            const unitElement = document.querySelector(`[onclick*="toggleUnitFiles('${unitId}')"]`);
+            if (unitElement) {
+                const unitName = unitElement.textContent.trim().split('\n')[0].replace('📁', '').trim();
+                showMessage(`Viewing files in: ${unitName}`, 'info');
+            }
+        }
+    }
+}
+
+function previewFileStudent(fileId, fileName) {
+    // Create modal for file preview
+    const modal = document.createElement('div');
+    modal.className = 'preview-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+    `;
+    
+    modal.innerHTML = `
+        <div class="preview-modal-content" style="
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 1000px;
+            height: 90%;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        ">
+            <div class="preview-header" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 20px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #dee2e6;
+            ">
+                <h3 style="margin: 0; color: #333; font-size: 18px;">
+                    <i class="fas fa-eye"></i> Preview: ${fileName}
+                </h3>
+                <button onclick="closePreviewStudent()" style="
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #6c757d;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                ">&times;</button>
+            </div>
+            <div class="preview-body" style="flex: 1; padding: 0; overflow: hidden;">
+                <iframe src="/api/preview-file/${fileId}/" width="100%" height="100%" frameborder="0">
+                    <p>Your browser does not support iframes. <a href="/api/download-file/${fileId}/" target="_blank">Download the file</a> instead.</p>
+                </iframe>
+            </div>
+            <div class="preview-footer" style="
+                padding: 15px 20px;
+                background: #f8f9fa;
+                border-top: 1px solid #dee2e6;
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            ">
+                <button onclick="downloadFile(${fileId})" style="
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-download"></i> Download File
+                </button>
+                <button onclick="closePreviewStudent()" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">
+                    <i class="fas fa-times"></i> Close Preview
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    showMessage(`Opening preview for ${fileName}`, 'info');
+}
+
+function closePreviewStudent() {
+    const modal = document.querySelector('.preview-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Close preview when clicking outside
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('preview-modal')) {
+        closePreviewStudent();
+    }
+});
+
+// Close preview with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closePreviewStudent();
+    }
+});
+
+// ===== FILTERING FUNCTIONALITY =====
+
+// Global variables for filtering
+let allTeachers = [];
+let filteredTeachers = [];
+
+// Initialize filtering on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Store original teacher data
+    const teacherCards = document.querySelectorAll('.card');
+    allTeachers = Array.from(teacherCards);
+    filteredTeachers = [...allTeachers];
+
+    // Set up filter event listeners
+    setupFilterListeners();
+
+    // Initialize filter state
+    updateFilterSummary();
+});
+
+// Set up event listeners for all filter controls
+function setupFilterListeners() {
+    // Teacher search input
+    const teacherSearch = document.getElementById('teacherSearch');
+    if (teacherSearch) {
+        teacherSearch.addEventListener('input', applyFilters);
+    }
+
+    // Subject filter
+    const subjectFilter = document.getElementById('subjectFilter');
+    if (subjectFilter) {
+        subjectFilter.addEventListener('change', applyFilters);
+    }
+
+    // Tag filter
+    const tagFilter = document.getElementById('tagFilter');
+    if (tagFilter) {
+        tagFilter.addEventListener('change', applyFilters);
+    }
+
+    // Unit filter
+    const unitFilter = document.getElementById('unitFilter');
+    if (unitFilter) {
+        unitFilter.addEventListener('change', applyFilters);
+    }
+
+    // Clear filters button
+    const clearFilters = document.getElementById('clearFilters');
+    if (clearFilters) {
+        clearFilters.addEventListener('click', clearAllFilters);
+    }
+}
+
+// Apply all active filters
+function applyFilters() {
+    const teacherSearchValue = document.getElementById('teacherSearch').value.toLowerCase().trim();
+    const subjectFilterValue = document.getElementById('subjectFilter').value;
+    const tagFilterValue = document.getElementById('tagFilter').value;
+    const unitFilterValue = document.getElementById('unitFilter').value;
+
+    filteredTeachers = allTeachers.filter(teacherCard => {
+        // Get teacher data
+        const teacherName = teacherCard.querySelector('.teacher-name').textContent.toLowerCase();
+        const teacherSubject = teacherCard.querySelector('.teacher-subject').textContent;
+
+        // Filter by teacher name
+        if (teacherSearchValue && !teacherName.includes(teacherSearchValue)) {
+            return false;
+        }
+
+        // Filter by subject
+        if (subjectFilterValue && teacherSubject !== subjectFilterValue) {
+            return false;
+        }
+
+        // Filter by tag
+        if (tagFilterValue) {
+            const hasMatchingFiles = checkTeacherHasTag(teacherCard, tagFilterValue);
+            if (!hasMatchingFiles) {
+                return false;
+            }
+        }
+
+        // Filter by unit
+        if (unitFilterValue) {
+            const hasMatchingUnit = checkTeacherHasUnit(teacherCard, unitFilterValue);
+            if (!hasMatchingUnit) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    // Update UI with filtered results
+    updateFilteredDisplay();
+    updateFilterSummary();
+}
+
+function checkTeacherHasTag(teacherCard, tag) {
+    const fileItems = teacherCard.querySelectorAll('.file-item');
+    return Array.from(fileItems).some(fileItem => {
+        const tagText = fileItem.querySelector('.file-tag')?.textContent.trim();
+        return tagText === tag;
+    });
+}
+
+// Check if teacher has specific unit
+function checkTeacherHasUnit(teacherCard, unitName) {
+    const units = teacherCard.querySelectorAll('.unit');
+    return Array.from(units).some(unit => {
+        const unitText = unit.textContent.trim();
+        return unitText.includes(unitName);
+    });
+}
+
+// Update the display with filtered results
+function updateFilteredDisplay() {
+    const cardsContainer = document.querySelector('.cards');
+
+    // Hide all teachers first
+    allTeachers.forEach(teacher => {
+        teacher.style.display = 'none';
+    });
+
+    // Show only filtered teachers
+    filteredTeachers.forEach(teacher => {
+        teacher.style.display = 'block';
+    });
+
+    // Show "no results" message if no teachers match
+    updateNoResultsMessage();
+}
+
+// Update the filter summary
+function updateFilterSummary() {
+    const summaryDiv = document.getElementById('filterSummary');
+    const summaryText = document.getElementById('filterSummaryText');
+
+    const teacherSearchValue = document.getElementById('teacherSearch').value.trim();
+    const subjectFilterValue = document.getElementById('subjectFilter').value;
+    const tagFilterValue = document.getElementById('tagFilter').value;
+    const unitFilterValue = document.getElementById('unitFilter').value;
+
+    const activeFilters = [];
+    if (teacherSearchValue) activeFilters.push(`Teacher: "${teacherSearchValue}"`);
+    if (subjectFilterValue) activeFilters.push(`Subject: ${subjectFilterValue}`);
+    if (tagFilterValue) activeFilters.push(`Tag: ${tagFilterValue}`);
+    if (unitFilterValue) activeFilters.push(`Unit: ${unitFilterValue}`);
+
+    if (activeFilters.length > 0) {
+        summaryText.textContent = `Showing ${filteredTeachers.length} of ${allTeachers.length} teachers • Filters: ${activeFilters.join(', ')}`;
+        summaryDiv.style.display = 'block';
+    } else {
+        summaryDiv.style.display = 'none';
+    }
+}
+
+// Clear all filters
+function clearAllFilters() {
+    document.getElementById('teacherSearch').value = '';
+    document.getElementById('subjectFilter').value = '';
+    document.getElementById('tagFilter').value = '';
+    document.getElementById('unitFilter').value = '';
+
+    filteredTeachers = [...allTeachers];
+    updateFilteredDisplay();
+    updateFilterSummary();
+
+    showMessage('All filters cleared', 'info');
+}
+
+// Update no results message
+function updateNoResultsMessage() {
+    const existingNoResults = document.querySelector('.no-filter-results');
+    if (existingNoResults) {
+        existingNoResults.remove();
+    }
+
+    if (filteredTeachers.length === 0 && allTeachers.length > 0) {
+        const cardsContainer = document.querySelector('.cards');
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.className = 'no-filter-results';
+        noResultsDiv.style.cssText = `
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 20px;
+        `;
+        noResultsDiv.innerHTML = `
+            <i class="fas fa-search" style="font-size: 48px; color: #ddd; margin-bottom: 20px;"></i>
+            <h3 style="color: #333; margin-bottom: 10px;">No Results Found</h3>
+            <p>No teachers match your current filter criteria.<br>Try adjusting your filters or clearing them to see all available courses.</p>
+            <button onclick="clearAllFilters()" style="
+                background: #7f65f3;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                margin-top: 15px;
+            ">
+                <i class="fas fa-times" style="margin-right: 5px;"></i>Clear All Filters
+            </button>
+        `;
+        cardsContainer.appendChild(noResultsDiv);
+    }
+}
+
+// Add some CSS for better filter styling
+const filterStyles = document.createElement('style');
+filterStyles.textContent = `
+    .filter-section {
+        margin-bottom: 30px;
+    }
+
+    .filter-controls {
+        gap: 15px;
+    }
+
+    .filter-group {
+        min-width: 0;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        border-color: #7f65f3;
+        box-shadow: 0 0 0 2px rgba(127, 101, 243, 0.1);
+    }
+
+    #clearFilters:hover {
+        background: #5a6268;
+    }
+
+    .no-filter-results {
+        grid-column: 1 / -1;
+    }
+
+    @media (max-width: 768px) {
+        .filter-controls {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-section {
+            padding: 15px;
+        }
+    }
+`;
+document.head.appendChild(filterStyles);
+</script>
+</body>
+</html>

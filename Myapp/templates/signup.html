@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Signup | cloudED</title>
+  <link rel="stylesheet" href="{% static 'css/signup.css' %}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
+<style>
+        body {
+    background: url("{% static 'img/img.jpg' %}") no-repeat center center fixed;
+    background-size: cover;
+  }
+  .alert {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .alert.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .alert.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+</style>
+<body>
+  <div class="container">
+    <div class="logo">
+      <i class="fas fa-graduation-cap"></i>
+      <span>cloud<span class="highlight">ED</span></span>
+    </div>
+
+    <div class="signup-box">
+      <h2>Create Your Account</h2>
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert {{ message.tags }}">
+        {{ message }}
+      </div>
+      
+      {% endfor %}
+    {% endif %}
+      <form id="signupForm" method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+      
+        <label>Full Name</label>
+        {{ form.full_name }}
+      
+        <label>Email Address</label>
+        {{ form.email }}
+      
+        <div class="row">
+          <div>
+            <label>Password</label>
+            {{ form.password }}
+          </div>
+          <div>
+            <label>Confirm Password</label>
+            {{ form.confirm_password }}
+          </div>
+        </div>
+      
+        <label>Role</label>
+        {{ form.role }}
+      
+        <div id="subjectInput" style="display: none;">
+          <label>Subject(s) You Want to Teach</label>
+          {{ form.subject }}
+        </div>
+      
+        <div class="terms">
+          <label>
+            {{ form.agreed }}
+            By signing up, I agree with the <a href="#">Terms of Use</a> & <a href="#">Privacy Policy</a>
+          </label>
+        </div>
+      
+        <button type="submit">Sign up</button>
+
+      </form>
+      
+
+      <p class="login-link">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const roleSelect = document.getElementById('roleSelect');
+      const subjectInput = document.getElementById('subjectInput');
+      const signupForm = document.getElementById('signupForm');
+      const getPasswordInputs = () => {
+        const passwordInputs = signupForm.querySelectorAll('input[type="password"]');
+        return {
+          password: passwordInputs[0]?.value.trim() || '',
+          confirmPassword: passwordInputs[1]?.value.trim() || ''
+        };
+      };
+  
+
+  
+      roleSelect.addEventListener('change', () => {
+        if (roleSelect.value === 'teacher') {
+          subjectInput.style.display = 'block';
+        } else {
+          subjectInput.style.display = 'none';
+        }
+      });
+  
+      signupForm.addEventListener('submit', function (e) {
+        const { password, confirmPassword } = getPasswordInputs();
+        const role = roleSelect.value;
+        const subjectField = subjectInput.querySelector('input');
+        const subject = subjectField ? subjectField.value.trim() : '';
+        const termsCheckbox = signupForm.querySelector('.terms input[type="checkbox"]');
+        const termsChecked = termsCheckbox && termsCheckbox.checked;
+  
+        // Password match check
+        if (password !== confirmPassword) {
+          e.preventDefault();
+          alert("Passwords do not match.");
+          return;
+        }
+  
+        // Subject check if teacher is selected
+        if (role === "teacher" && subject === "") {
+          e.preventDefault();
+          alert("Please enter the subject(s) you want to teach.");
+          return;
+        }
+  
+        // Terms & conditions checkbox check
+        if (!termsChecked) {
+          e.preventDefault();
+          alert("Please agree to the Terms of Use and Privacy Policy.");
+          return;
+        }
+  
+        // Allow form to submit normally to Django (no redirect needed)
+      });
+    });
+  </script>
+  </body>
+</html>

@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | cloudED</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+      body {
+    background: url("{% static 'img/img.jpg' %}") no-repeat center center fixed;
+    background-size: cover;
+  }
+    .alert {
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+      animation: slideDown 0.3s ease;
+    }
+    .alert.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .alert.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .role-select {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .role-select label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .role-select label:hover {
+      border-color: #7f65f3;
+      background-color: #f8f7ff;
+    }
+    .role-select input[type="radio"]:checked + span {
+      color: #7f65f3;
+      font-weight: 600;
+    }
+    .role-select input[type="radio"]:checked + span + i {
+      color: #7f65f3;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: #7f65f3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .login-btn:hover {
+      background: #6c5ce7;
+    }
+    .login-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <i class="fas fa-graduation-cap"></i>
+      <span>cloud<span class="highlight">ED</span></span>
+    </div>
+    
+    <div class="login-box">
+      <h2>Welcome Back!</h2>
+      
+      <!-- Display messages -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags }}">
+            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+      
+      <form method="POST" id="loginForm">
+        {% csrf_token %}
+        
+        <!-- Role Selection -->
+        <div class="role-select">
+          {% for choice in form.role %}
+            <label>
+              {{ choice.tag }}
+              <span>{{ choice.choice_label }}</span>
+              <i class="fas {% if choice.choice_value == 'student' %}fa-user-graduate{% else %}fa-chalkboard-teacher{% endif %}"></i>
+            </label>
+          {% endfor %}
+        </div>
+        
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="field-error">{{ form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <!-- Password Field -->
+        <div class="form-group">
+          <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <div class="field-error">{{ form.password.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <button type="submit" class="login-btn" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+      </form>
+      
+      <p class="signup-link">
+        Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const loginBtn = document.getElementById('loginBtn');
+      const email = document.querySelector('input[name="email"]').value.trim();
+      const password = document.querySelector('input[name="password"]').value.trim();
+      const role = document.querySelector('input[name="role"]:checked');
+      
+      // Basic client-side validation
+      if (!email || !password || !role) {
+        e.preventDefault();
+        alert('Please fill in all fields and select a role.');
+        return;
+      }
+      
+      // Disable button and show loading state
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+      
+      // Let the form submit normally to Django backend
+      // The backend will handle authentication and redirect
+    });
+    
+    // Auto-hide success/error messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        setTimeout(() => {
+          alert.style.opacity = '0';
+          setTimeout(() => alert.remove(), 300);
+        }, 5000);
+      });
+    });
+  </script>
+</body>
+</html>

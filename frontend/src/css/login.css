@@ -1,0 +1,112 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+  }
+ 
+  body, html {
+    height: 100%;
+  }
+
+  .container {
+    position: relative;
+    width: 100%;
+    min-height: 100vh; /* ensure full viewport height */
+  }
+  
+  /* 452 Enlarged logo area */
+  .logo {
+    position: absolute;
+    top: 30px;
+    left: 50px;
+    font-size: 40px;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .logo i {
+    font-size: 42px;
+  }
+  
+  .logo .highlight {
+    color: #7f65f3;
+  }
+  
+  /* 452 Enlarged form box */
+  .login-box {
+    position: absolute;
+    top: 50%;
+    right: 60px; /* slightly closer to edge to avoid overflow on small screens */
+    transform: translateY(-50%);
+    background: white;
+    padding: 50px 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+    max-width: 420px;
+    width: min(420px, 90vw); /* responsive: at small viewports it won't overflow */
+    z-index: 20;
+  }
+  
+  .login-box h2 {
+    color: #7f65f3;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+  }
+  
+  /* 452 Enlarged role selection */
+  .role-select {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .role-select label {
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .role-select input {
+    margin-right: 8px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 452 Larger font and input fields */
+  form label {
+    font-size: 16px;
+    margin-bottom: 8px;
+    margin-top: 18px;
+    color: #333;
+  }
+  
+  form input {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  button {
+    margin-top: 30px;
+    padding: 12px;
+    background: #7f65f3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  button:hover {
+    background: #6a54db;
+  }

@@ -1,0 +1,243 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  body {
+    background-color: #f6f8fc;
+    color: #111827;
+  }
+  .dropdown a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 0.4rem;
+    border-radius: 6px;
+    text-align: left;
+    background: #f3f4f6;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: #111827;
+  }
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  /* Header */
+  header {
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .logo-icon {
+    width: 28px;
+  }
+  
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #7f65f3;
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    position: relative;
+  }
+  
+  .header-right i {
+    font-size: 1.2rem;
+    color: #7f65f3;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .header-right i:hover {
+    transform: scale(1.2);
+  }
+  
+  /* Dropdown */
+  .user-icon {
+    background: #e0e7ff;
+    padding: 0.4rem;
+    border-radius: 50%;
+    color: #7f65f3;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .user-icon:hover {
+    background: #c7d2fe;
+  }
+  
+  .dropdown {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+    min-width: 180px;
+    padding: 0.75rem;
+    z-index: 100;
+  }
+  
+  .dropdown p {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .dropdown a {
+    padding: 0.4rem;
+    border-radius: 6px;
+    text-align: center;
+    background: #f3f4f6;
+    transition: background 0.2s;
+  }
+  
+  .dropdown a:hover {
+    background: #e5e7eb;
+  }
+  
+  /* Layout */
+  .container {
+    display: flex;
+    padding: 2rem;
+    gap: 2rem;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 300px;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .sidebar h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #7f65f3;
+  }
+  
+  .sidebar a {
+    display: block;
+    margin-top: 1rem;
+    color: #4b5563;
+  }
+  
+  .sidebar p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #4b5563;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex: 1;
+  }
+  
+  .main-content h1 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  
+  .card {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+  }
+  
+  .card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .unit-list,
+  .pdf-viewer {
+    display: none;
+    margin-top: 10px;
+  }
+  
+  .unit {
+    background: #f2f2f2;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 6px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .unit:hover {
+    background-color: #f0f0ff;
+  }
+  
+  .pdf-viewer {
+    margin-left: 20px;
+    padding-left: 10px;
+    color: #444;
+  }
+  
+  .card.expanded .unit-list {
+    display: block;
+    animation: slideDown 0.4s ease;
+    margin-bottom: 50px; /* Push space after expanded */
+  }
+  
+  .card.expanded .arrow-icon {
+    transform: rotate(90deg);
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
