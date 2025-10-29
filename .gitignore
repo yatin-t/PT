@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.sqlite3
+.env
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+
+# Node
+node_modules/
+frontend/node_modules/
+dist/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
